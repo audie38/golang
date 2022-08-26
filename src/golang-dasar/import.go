@@ -6,4 +6,5 @@ import "golang-dasar/helper"
 
 func main() {
 	helper.SayHello("Audie")
+	//helper.sayGoodBye("Audie") //error access modifier
 }
