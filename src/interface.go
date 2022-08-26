@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
 /**
 Struct yang punya Method yang sama dengan di interface akan otomatis mengimplemen interface
@@ -35,6 +38,18 @@ func main() {
 	fmt.Println(data)
 	data = Ups(3)
 	fmt.Println(data)
+
+	// Interface Error
+	var contohError error = errors.New("Err...")
+	fmt.Println(contohError.Error())
+
+	hasil, err := Pembagian(100, 0)
+	if err == nil{
+		fmt.Println("Hasil", hasil)
+	}else{
+		fmt.Println("Error", err.Error())
+	}
+
 }
 
 func sayHallo(hasName HasName) {
@@ -57,5 +72,14 @@ func Ups(i int) interface{} {
 		return true
 	}else{
 		return "Ups"
+	}
+}
+
+// Interface Error
+func Pembagian (nilai int, pembagi int)(int, error){
+	if pembagi == 0{
+		return 0, errors.New("Pembagian dengan NOL")
+	}else{
+		return nilai/pembagi, nil
 	}
 }
