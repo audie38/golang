@@ -1,6 +1,6 @@
 package main
 
-import "helper"
+import "golang-dasar/helper"
 
 // go env -w GO111MODULE=off
 
