@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"math"
 	"os"
 	"strconv"
 	"strings"
@@ -58,5 +59,14 @@ func main(){
 	fmt.Println(valInt)
 	valString := strconv.Itoa(8000) // konversi ke string
 	fmt.Println(valString)
+
+	// Package math
+	fmt.Println("Package Math")
+	fmt.Println(math.Round(8.6))
+	fmt.Println(math.Round(8.3))
+	fmt.Println(math.Floor(8.6))
+	fmt.Println(math.Ceil(8.3))
+	fmt.Println(math.Max(8, 12))
+	fmt.Println(math.Min(8, 12))
 
 }
