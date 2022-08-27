@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -33,5 +34,29 @@ func main(){
 	fmt.Println(strings.ToUpper("Audie Milson"))
 	fmt.Println(strings.Trim("               Audie  Milson            ", " "))
 	fmt.Println(strings.ReplaceAll("Audie Audie Audie", "Audie", "Milson"))
+
+	// Package strconv
+	fmt.Println("Package strconv")
+	boolean, err := strconv.ParseBool("true")
+	if err == nil{
+		fmt.Println(boolean)
+	}else{
+		fmt.Println("Error: ", err.Error())
+	}
+
+	number, err := strconv.ParseInt("80", 10, 64) // convert from string : input, base, return bit size
+	if err == nil{
+		fmt.Println(number)
+	}else{
+		fmt.Println("Error: ", err.Error())
+	}
+
+	value := strconv.FormatInt(1000000, 10) // convert to string : input, base
+	fmt.Println(value)
+
+	valInt, err := strconv.Atoi("2000000") // konversi string ke number
+	fmt.Println(valInt)
+	valString := strconv.Itoa(8000) // konversi ke string
+	fmt.Println(valString)
 
 }
