@@ -2,7 +2,9 @@ package main
 
 import (
 	"container/list"
+	"container/ring"
 	"fmt"
+	"strconv"
 )
 
 func main() {
@@ -27,5 +29,19 @@ func main() {
 	for e := data.Back(); e!= nil; e = e.Prev(){
 		fmt.Println(e.Value)
 	}
+
+	// Container Ring / Circular List
+	// data2 := ring.New(5)
+	var data2 *ring.Ring = ring.New(5)
+	for i := 0; i< data2.Len(); i++{
+		data2.Value = "Value " + strconv.FormatInt(int64(i), 10)
+		data2 = data2.Next()
+	}
+
+	data2.Do(func(value interface{}){ // Print isi data Ring
+		fmt.Println(value)
+	})
+
+	
 
 }
