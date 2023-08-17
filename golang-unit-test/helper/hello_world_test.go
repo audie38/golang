@@ -30,6 +30,14 @@ import (
  * require.equal(t, expected result, actual result, feedback if actual != expected)
  */
 
+ func TestMain(m *testing.M){
+	// Before
+	fmt.Println("Before Unit Test")
+	m.Run()
+	// After
+	fmt.Println("After Unit Test")
+ }
+
 func TestHelloWorld(t *testing.T){
 	result := HelloWorld("Audie")
 	if result != "Hello Audie"{
@@ -46,7 +54,7 @@ func TestHelloWorldDummy(t *testing.T){
 }
 
 func TestHelloWorldRequire(t *testing.T){
-	result := HelloWorld("Ichigo")
+	result := HelloWorld("Dummy")
 	require.Equal(t, "Hello Dummy", result, "Result must be Hello Dummy")
 }
 
