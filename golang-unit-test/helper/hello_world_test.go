@@ -17,6 +17,13 @@ import (
  *  go test -v -run=[test function name]/[subtest name] = to run specific test functions subtest
  */
 
+/*	Go Benchmark Command Line:
+ *	go test -v -bench=. (to run all benchmark)
+ *	go test -v -run=[randomtestfunction] -bench=. (to run all benchmark without running test functions)
+ *	go test -v -run=[randomtestfunction] -bench=[benchmark function name]
+ *	go test -v -bench=. ./...
+ */
+
 /* Unit Test Failed Feedback Syntax:
  * t.Fail() = failed the unit test and continue
  * t.FailNow() = failed the unit test and not continue
@@ -39,6 +46,12 @@ import (
 
 type Tests struct{
 	name, request, expected, message string
+}
+
+func BenchmarkHelloWorld(b *testing.B){
+	for i := 0; i < b.N; i++{
+		HelloWorld("Test")
+	}
 }
 
 func TestMain(m *testing.M){
