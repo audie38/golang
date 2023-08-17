@@ -21,6 +21,7 @@ import (
  *	go test -v -bench=. (to run all benchmark)
  *	go test -v -run=[randomtestfunction] -bench=. (to run all benchmark without running test functions)
  *	go test -v -run=[randomtestfunction] -bench=[benchmark function name]
+ *	go test -v -run=[randomtestfunction] -bench=[benchmark function name]/[sub benchmark name]
  *	go test -v -bench=. ./...
  */
 
@@ -52,6 +53,39 @@ func BenchmarkHelloWorld(b *testing.B){
 	for i := 0; i < b.N; i++{
 		HelloWorld("Test")
 	}
+}
+
+func BenchmarkSubTable(b *testing.B){
+	testList := []struct{
+		name string
+		request string
+	}{
+		{
+			name: "benchmark_1",
+			request: "Ichigo",
+		},
+		{
+			name: "benchmark_2",
+			request: "Kurosaki",
+		},
+		{
+			name: "benchmark_3",
+			request: "Dummy",
+		},
+		{
+			name: "benchmark_4",
+			request: "Shigekuni Genryusai Yamamoto",
+		},
+	}
+
+	for _, test := range testList{
+		b.Run(test.name, func(b *testing.B){
+			for i := 0; i < b.N; i++{
+				HelloWorld(test.request)
+			}
+		})
+	}
+
 }
 
 func TestMain(m *testing.M){
