@@ -37,13 +37,17 @@ import (
  * require.equal(t, expected result, actual result, feedback if actual != expected)
  */
 
- func TestMain(m *testing.M){
+type Tests struct{
+	name, request, expected, message string
+}
+
+func TestMain(m *testing.M){
 	// Before
 	fmt.Println("Before Unit Test")
 	m.Run()
 	// After
 	fmt.Println("After Unit Test")
- }
+}
 
 func TestHelloWorld(t *testing.T){
 	result := HelloWorld("Audie")
@@ -52,6 +56,7 @@ func TestHelloWorld(t *testing.T){
 	}
 	fmt.Println("Finish Unit Test t.Error")
 }
+
 func TestHelloWorldDummy(t *testing.T){
 	result := HelloWorld("Dummy")
 	if result != "Hello Dummy"{
@@ -88,4 +93,34 @@ func TestSubTest(t *testing.T){
 		result := HelloWorld("Kurosaki")
 		assert.Equal(t, "Hello Kurosaki", result, "Result must be Hello Kurosaki")
 	})
+}
+
+func TestHelloWorldTable(t *testing.T){
+	tests := []Tests{
+		{
+			name: "Ichigo",
+			request: "Ichigo",
+			expected: "Hello Ichigo",
+			message: "Result must be Hello Ichigo",
+		},
+		{
+			name: "Kurosaki",
+			request: "Kurosaki",
+			expected: "Hello Kurosaki",
+			message: "Result must be Hello Kurosaki",
+		},
+		{
+			name: "Dummy",
+			request: "Dummy",
+			expected: "Hello Dummy",
+			message: "Result must be Hello Dummy",
+		},
+	}
+
+	for _, test := range tests{
+		t.Run(test.name,func(t *testing.T){
+			result := HelloWorld(test.request)
+			require.Equal(t, test.expected, result, test.message)
+		})
+	}
 }
