@@ -57,3 +57,24 @@ func TestInOutChannel(t *testing.T){
 
 	time.Sleep(5 * time.Second)
 }
+
+func TestBufferedChannel(t *testing.T){
+	//by default channel can only send & receive 1 (no buffer), to send/receive more than 1 must add buffer
+	channel := make(chan string, 3) 
+	defer close(channel)
+
+	go func(){
+		channel <- "Shigekuni"
+		channel <- "Genryusai"
+		channel <- "Yamamoto"
+	}()
+
+	go func(){
+		fmt.Println(<-channel)
+		fmt.Println(<-channel)
+		fmt.Println(<-channel)
+	}()
+
+	time.Sleep(3 * time.Second)
+	fmt.Println("Done")
+}
