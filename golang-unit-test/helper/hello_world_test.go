@@ -10,18 +10,21 @@ import "testing"
  */
 
 /*
+ * t.Fail() = failed the unit test and continue
  * t.FailNow() = failed the unit test and not continue
+ * t.Error() = similar to t.Fail() but can pass failed feedback arguments
+ * t.Fatal() = similar to t.FailNow() but can pass failed feedback arguments
  */
 
 func TestHelloWorld(t *testing.T){
 	result := HelloWorld("Audie")
 	if result != "Hello Dummy"{
-		t.Fail()
+		t.Error("Result must be Hello Dummy")
 	}
 }
 func TestHelloWorldDummy(t *testing.T){
 	result := HelloWorld("Dummy")
 	if result != "Hello test"{
-		t.FailNow()
+		t.Fatal("Result must be Hello test")
 	}
 }
