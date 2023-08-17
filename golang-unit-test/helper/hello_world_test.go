@@ -14,6 +14,7 @@ import (
  *	go test -v = to show what test functions running
  *	go test -v ./... = to run all test from root folder
  *	go test -v -run=[test functions name] = to run specific test functions
+ *  go test -v -run=[test function name]/[subtest name] = to run specific test functions subtest
  */
 
 /* Unit Test Failed Feedback Syntax:
@@ -21,6 +22,12 @@ import (
  * t.FailNow() = failed the unit test and not continue
  * t.Error() = similar to t.Fail() but can pass failed feedback arguments
  * t.Fatal() = similar to t.FailNow() but can pass failed feedback arguments
+ */
+
+/* Unit Test Syntax:
+ * t.Skip() = to skip unit test
+ * m *testing.M = can be use to check before and after unit test run
+ * t.Run() = can be used to create sub test
  */
 
 /* Assertion Syntax:
@@ -70,4 +77,15 @@ func TestSkip(t *testing.T){
 
 	result := HelloWorld("Test")
 	assert.Equal(t, "Hello Test", result, "Result must be Hello Test")
+}
+
+func TestSubTest(t *testing.T){
+	t.Run("Ichigo", func(t *testing.T){
+		result := HelloWorld("Dummy")
+		require.Equal(t, "Hello Ichigo", result, "Result must be Hello Ichigo")
+	})
+	t.Run("Kurosaki", func(t *testing.T){
+		result := HelloWorld("Kurosaki")
+		assert.Equal(t, "Hello Kurosaki", result, "Result must be Hello Kurosaki")
+	})
 }
