@@ -9,15 +9,19 @@ import "testing"
  *	go test -v -run=[test functions name] = to run specific test functions
  */
 
+/*
+ * t.FailNow() = failed the unit test and not continue
+ */
+
 func TestHelloWorld(t *testing.T){
 	result := HelloWorld("Audie")
-	if result != "Hello Audie"{
-		panic("Result is not Hello Audie")
+	if result != "Hello Dummy"{
+		t.Fail()
 	}
 }
 func TestHelloWorldDummy(t *testing.T){
 	result := HelloWorld("Dummy")
-	if result != "Hello Dummy"{
-		panic("Result is not Hello Dummy")
+	if result != "Hello test"{
+		t.FailNow()
 	}
 }
