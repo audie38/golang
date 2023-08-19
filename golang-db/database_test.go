@@ -34,3 +34,29 @@ func TestExecSql(t *testing.T){
 
 	fmt.Println("Success Insert New Customer")
 }
+
+func TestSelectSql(t *testing.T){
+	db := GetConnection()
+	defer db.Close()
+
+	ctx := context.Background()
+	sqlQuery := "SELECT CUSTOMER_ID, CUSTOMER_NAME FROM CUSTOMER"
+	rows, err := db.QueryContext(ctx, sqlQuery)
+	if err != nil{
+		panic(err)
+	}
+
+	for rows.Next(){
+		var(
+			customerId int64
+			customerName string
+		)
+		err := rows.Scan(&customerId, &customerName)
+		if err != nil{
+			panic(err)
+		}
+		fmt.Println("Customer Id: ", customerId, "; Customer Name: ", customerName)
+	}
+
+	defer rows.Close()
+}
