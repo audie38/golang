@@ -119,7 +119,7 @@ func TestInsertPreventSqlInjection(t *testing.T){
 	defer db.Close()
 
 	ctx := context.Background()
-	username := "user1"
+	username := "userone"
 	password := "password"
 
 	if username == "" || password == ""{
@@ -127,10 +127,16 @@ func TestInsertPreventSqlInjection(t *testing.T){
 	}
 
 	sqlQuery := "INSERT INTO `USER`(USERNAME, `PASSWORD`) VALUES(?, ?)"
-	_, err := db.ExecContext(ctx, sqlQuery, username, password)
+	result, err := db.ExecContext(ctx, sqlQuery, username, password)
 	if err != nil{
 		panic(err)
 	}
 
-	fmt.Println("Add User Success")
+	insertedId, err := result.LastInsertId()
+	if err != nil{
+		panic(err)
+	}
+
+	fmt.Println("Add User Success...")
+	fmt.Println("Created UserId: ", insertedId)
 }
