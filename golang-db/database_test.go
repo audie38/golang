@@ -87,11 +87,11 @@ func TestSqlInjection(t *testing.T){
 	defer db.Close()
 
 	ctx := context.Background()
-	username := "admin'; #"
-	password := "salah"
+	username := "user1"
+	password := "password"
 
-	sqlQuery := "SELECT USER_ID, USERNAME FROM USER WHERE USERNAME = '"+ username+"' AND PASSWORD = '"+password+"' LIMIT 1"
-	rows, err := db.QueryContext(ctx, sqlQuery)
+	sqlQuery := "SELECT USER_ID, USERNAME FROM USER WHERE USERNAME = ? AND PASSWORD = ? LIMIT 1"
+	rows, err := db.QueryContext(ctx, sqlQuery, username, password)
 	if err != nil{
 		panic(err)
 	}
@@ -112,4 +112,25 @@ func TestSqlInjection(t *testing.T){
 	}else{
 		fmt.Println("Invalid Credentials")
 	}
+}
+
+func TestInsertPreventSqlInjection(t *testing.T){
+	db := GetConnection()
+	defer db.Close()
+
+	ctx := context.Background()
+	username := "user1"
+	password := "password"
+
+	if username == "" || password == ""{
+		t.Fatal("Username/Password cannot be empty")
+	}
+
+	sqlQuery := "INSERT INTO `USER`(USERNAME, `PASSWORD`) VALUES(?, ?)"
+	_, err := db.ExecContext(ctx, sqlQuery, username, password)
+	if err != nil{
+		panic(err)
+	}
+
+	fmt.Println("Add User Success")
 }
