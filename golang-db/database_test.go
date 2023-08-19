@@ -51,10 +51,12 @@ func TestSelectSql(t *testing.T){
 	for rows.Next(){
 		var(
 			customerId int64
-			customerName, email string
+			customerName string
+			email sql.NullString
 			balance int32
 			rating float64
-			createdAt, birthDate time.Time
+			createdAt time.Time
+			birthDate sql.NullTime
 			married bool
 		)
 		err := rows.Scan(&customerId, &customerName, &email, &balance, &rating, &createdAt, &birthDate, &married)
@@ -64,11 +66,15 @@ func TestSelectSql(t *testing.T){
 		fmt.Println("======================")
 		fmt.Println("CustomerId: ", customerId)
 		fmt.Println("Customer Name: ", customerName)
-		fmt.Println("Email: ", email)
+		if email.Valid{
+			fmt.Println("Email: ", email.String)
+		}
 		fmt.Println("Balance: ", balance)
 		fmt.Println("Rating: ", rating)
 		fmt.Println("Created At: ", createdAt)
-		fmt.Println("Birth Date: ", birthDate)
+		if birthDate.Valid{
+			fmt.Println("Birth Date: ", birthDate.Time)
+		}
 		fmt.Println("Married: ", married)
 	}
 	fmt.Println("======================")
