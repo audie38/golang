@@ -81,3 +81,35 @@ func TestSelectSql(t *testing.T){
 
 	defer rows.Close()
 }
+
+func TestSqlInjection(t *testing.T){
+	db:= GetConnection()
+	defer db.Close()
+
+	ctx := context.Background()
+	username := "admin'; #"
+	password := "salah"
+
+	sqlQuery := "SELECT USER_ID, USERNAME FROM USER WHERE USERNAME = '"+ username+"' AND PASSWORD = '"+password+"' LIMIT 1"
+	rows, err := db.QueryContext(ctx, sqlQuery)
+	if err != nil{
+		panic(err)
+	}
+	defer rows.Close()
+
+	if rows.Next(){
+		var(
+			userId int64
+			userName string
+		)
+
+		err := rows.Scan(&userId, &userName)
+		if err != nil{
+			panic(err)
+		}
+		fmt.Println("User Logged In!")
+		fmt.Println("UserId: ", userId, "; Username: ", userName)
+	}else{
+		fmt.Println("Invalid Credentials")
+	}
+}
