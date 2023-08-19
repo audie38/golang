@@ -7,7 +7,7 @@ import (
 
 func GetConnection() *sql.DB{
 	dbDriver := "mysql"
-	connStr := "root:@tcp(localhost:3306)/golang_db"
+	connStr := "root:@tcp(localhost:3306)/golang_db?parseTime=true"
 
 	db, err := sql.Open(dbDriver, connStr)
 	if err != nil{

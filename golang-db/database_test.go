@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"testing"
+	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -26,7 +27,8 @@ func TestExecSql(t *testing.T){
 
 	ctx := context.Background()
 
-	sqlQuery := "INSERT INTO CUSTOMER(CUSTOMER_NAME) VALUES('Kurosaki')"
+	sqlQuery := 
+	"INSERT INTO CUSTOMER(CUSTOMER_NAME, EMAIL, BALANCE, RATING, BIRTH_DATE, MARRIED) VALUES('Ichigo', 'ichigo@localhost.com', 100000, 5.0, '2000-08-30', true)"
 	_, err := db.ExecContext(ctx, sqlQuery)
 	if err != nil{
 		panic(err)
@@ -40,7 +42,7 @@ func TestSelectSql(t *testing.T){
 	defer db.Close()
 
 	ctx := context.Background()
-	sqlQuery := "SELECT CUSTOMER_ID, CUSTOMER_NAME FROM CUSTOMER"
+	sqlQuery := "SELECT CUSTOMER_ID, CUSTOMER_NAME, EMAIL, BALANCE, RATING, CREATED_AT, BIRTH_DATE, MARRIED FROM CUSTOMER"
 	rows, err := db.QueryContext(ctx, sqlQuery)
 	if err != nil{
 		panic(err)
@@ -49,14 +51,27 @@ func TestSelectSql(t *testing.T){
 	for rows.Next(){
 		var(
 			customerId int64
-			customerName string
+			customerName, email string
+			balance int32
+			rating float64
+			createdAt, birthDate time.Time
+			married bool
 		)
-		err := rows.Scan(&customerId, &customerName)
+		err := rows.Scan(&customerId, &customerName, &email, &balance, &rating, &createdAt, &birthDate, &married)
 		if err != nil{
 			panic(err)
 		}
-		fmt.Println("Customer Id: ", customerId, "; Customer Name: ", customerName)
+		fmt.Println("======================")
+		fmt.Println("CustomerId: ", customerId)
+		fmt.Println("Customer Name: ", customerName)
+		fmt.Println("Email: ", email)
+		fmt.Println("Balance: ", balance)
+		fmt.Println("Rating: ", rating)
+		fmt.Println("Created At: ", createdAt)
+		fmt.Println("Birth Date: ", birthDate)
+		fmt.Println("Married: ", married)
 	}
+	fmt.Println("======================")
 
 	defer rows.Close()
 }
