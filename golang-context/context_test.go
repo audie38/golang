@@ -39,7 +39,7 @@ func TestContextWithValue(t *testing.T){
 	fmt.Println(contextA.Value("b"))	
 }
 
-func CreateCounter() chan int{
+func CreateCounter(ctx context.Context) chan int{
 	destination := make(chan int)
 
 	go func(){
@@ -47,8 +47,13 @@ func CreateCounter() chan int{
 		counter := 0
 
 		for{
-			destination  <- counter
-			counter ++
+			select {
+			case <- ctx.Done():
+				return
+			default:
+				destination  <- counter
+				counter ++
+			}
 		}
 	}()
 
@@ -57,8 +62,9 @@ func CreateCounter() chan int{
 
 func TestContextWithCancel(t *testing.T){
 	fmt.Println("Total Goroutine: ", runtime.NumGoroutine())
-
-	destination := CreateCounter()
+	parent := context.Background()
+	ctx, cancel := context.WithCancel(parent)
+	destination := CreateCounter(ctx)
 
 	for n := range destination{
 		fmt.Println("Counter: ", n)
@@ -67,5 +73,6 @@ func TestContextWithCancel(t *testing.T){
 		}
 	}
 
+	cancel()
 	fmt.Println("Total Goroutine: ", runtime.NumGoroutine())
 }
