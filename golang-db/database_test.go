@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"strconv"
 	"testing"
 	"time"
 
@@ -139,4 +140,33 @@ func TestInsertPreventSqlInjection(t *testing.T){
 
 	fmt.Println("Add User Success...")
 	fmt.Println("Created UserId: ", insertedId)
+}
+
+func TestPrepareStatement(t *testing.T){
+	db := GetConnection()
+	defer db.Close()
+
+	ctx := context.Background()
+	sqlQuery := "INSERT INTO `COMMENT`(EMAIL, `COMMENT_DESC`) VALUES(?, ?)"
+	statement, err := db.PrepareContext(ctx, sqlQuery)
+	if err != nil{
+		panic(err)
+	}
+
+	defer statement.Close()
+	for i := 0; i < 10; i++{
+		email := "ichigo" + strconv.Itoa(i)+ "@localhost.com"
+		comment := "Komentar ke " + strconv.Itoa(i)
+
+		result, err := statement.ExecContext(ctx, email, comment)
+		if err != nil{
+			panic(err)
+		}
+
+		id, err := result.LastInsertId()
+		if err != nil{
+			panic(err)
+		}
+		fmt.Println("Inserted Comment Id: ", id)
+	}
 }
