@@ -91,6 +91,11 @@ type Page struct{
 	Content string
 }
 
+type PageContent struct{
+	Title string
+	Name string
+}
+
 func TemplateDataMap(w http.ResponseWriter, r *http.Request){
 	t := template.Must(template.ParseFiles("./templates/layout.gohtml"))
 	t.ExecuteTemplate(w, "layout.gohtml", map[string]interface{}{
@@ -107,10 +112,19 @@ func TemplateDataStruct(w http.ResponseWriter, r *http.Request){
 	})
 }
 
+func TemplateActionIf(w http.ResponseWriter, r *http.Request){
+	t := template.Must(template.ParseFiles("./templates/if.gohtml"))
+	t.ExecuteTemplate(w, "if.gohtml", PageContent{
+		Title: "Golang Template Action",
+		Name: r.URL.Query().Get("name"),
+	})
+}
+
 func TestTemplateData(t *testing.T){
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", TemplateDataStruct)
 	mux.HandleFunc("/map", TemplateDataMap)
+	mux.HandleFunc("/action-if", TemplateActionIf)
 
 	server := http.Server{
 		Addr: "localhost:8080",
