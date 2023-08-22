@@ -120,11 +120,23 @@ func TemplateActionIf(w http.ResponseWriter, r *http.Request){
 	})
 }
 
+func TemplateActionComparator(w http.ResponseWriter, r *http.Request){
+	t := template.Must(template.ParseFiles("./templates/comparator.gohtml"))
+	t.ExecuteTemplate(w, "comparator.gohtml", struct{
+		Title string
+		FinalValue int
+	}{
+		Title: "Golang Template Action Comparator",
+		FinalValue: 70,
+	})
+}
+
 func TestTemplateData(t *testing.T){
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", TemplateDataStruct)
 	mux.HandleFunc("/map", TemplateDataMap)
 	mux.HandleFunc("/action-if", TemplateActionIf)
+	mux.HandleFunc("/action-comparator", TemplateActionComparator)
 
 	server := http.Server{
 		Addr: "localhost:8080",
