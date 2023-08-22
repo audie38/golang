@@ -96,6 +96,11 @@ type PageContent struct{
 	Name string
 }
 
+type Hobby struct{
+	Title string
+	Hobbies []string
+}
+
 func TemplateDataMap(w http.ResponseWriter, r *http.Request){
 	t := template.Must(template.ParseFiles("./templates/layout.gohtml"))
 	t.ExecuteTemplate(w, "layout.gohtml", map[string]interface{}{
@@ -131,9 +136,20 @@ func TemplateActionComparator(w http.ResponseWriter, r *http.Request){
 	})
 }
 
+func TemplateActionRange(w http.ResponseWriter, r *http.Request){
+	t := template.Must(template.ParseFiles("./templates/range.gohtml"))
+	t.ExecuteTemplate(w, "range.gohtml", Hobby{
+		Title: "Golang Template Range",
+		Hobbies: []string{
+			"Gaming", "Watching", "Coding",
+		},
+	})
+}
+
 func TestTemplateData(t *testing.T){
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", TemplateDataStruct)
+	mux.HandleFunc("/range", TemplateActionRange)
 	mux.HandleFunc("/map", TemplateDataMap)
 	mux.HandleFunc("/action-if", TemplateActionIf)
 	mux.HandleFunc("/action-comparator", TemplateActionComparator)
