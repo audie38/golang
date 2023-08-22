@@ -1,6 +1,7 @@
 package golang_web
 
 import (
+	"embed"
 	_ "embed"
 	"fmt"
 	"html/template"
@@ -31,10 +32,28 @@ func SimpleHTMLFile(w http.ResponseWriter, r *http.Request){
 	t.ExecuteTemplate(w, "simple.gohtml", `<div className="container my-5">Hello Golang Web Templates</div>`)
 }
 
+func TemplateDirectory(w http.ResponseWriter, r *http.Request){
+	t := template.Must(template.ParseGlob("./templates/*.gohtml"))
+	t.ExecuteTemplate(w, "simple.gohtml", "Hello HTML Template")
+}
+
+//go:embed templates/*.gohtml
+var templates embed.FS
+
+func TemplateEmbed(w http.ResponseWriter, r *http.Request){
+	t, err := template.ParseFS(templates, "templates/*.gohtml")
+	if err != nil{
+		panic(err)
+	}
+	t.ExecuteTemplate(w, "simple.gohtml", "Hello Golang Embed Template")
+}
+
 func TestTemplateLayout(t *testing.T){
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", SimpleHTML)
 	mux.HandleFunc("/template", SimpleHTMLFile)
+	mux.HandleFunc("/template/glob", TemplateDirectory)
+	mux.HandleFunc("/template/embed", TemplateEmbed)
 
 	server := http.Server{
 		Addr: "localhost:8000",
