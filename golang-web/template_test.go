@@ -122,7 +122,11 @@ func TemplateDataMap(w http.ResponseWriter, r *http.Request){
 }
 
 func TemplateDataStruct(w http.ResponseWriter, r *http.Request){
-	t := template.Must(template.ParseFiles("./templates/layout.gohtml"))
+	t := template.Must(template.ParseFiles(
+		"./templates/header.gohtml",
+		"./templates/layout.gohtml",
+		"./templates/footer.gohtml",
+		))
 	t.ExecuteTemplate(w, "layout.gohtml", Page{
 		Title: "Golang Template Data",
 		Content: "Golang Web Template Data Struct",
