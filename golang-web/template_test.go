@@ -24,17 +24,19 @@ func SimpleHTML(w http.ResponseWriter, r *http.Request){
 	t.ExecuteTemplate(w, "SIMPLE", `Hello Golang`)	
 }
 
+const simpleHtml string = "simple.gohtml"
+
 func SimpleHTMLFile(w http.ResponseWriter, r *http.Request){
 	t, err := template.ParseFiles("./templates/simple.gohtml")
 	if err != nil{
 		panic(err)
 	}
-	t.ExecuteTemplate(w, "simple.gohtml", `<div className="container my-5">Hello Golang Web Templates</div>`)
+	t.ExecuteTemplate(w, simpleHtml, `<div className="container my-5">Hello Golang Web Templates</div>`)
 }
 
 func TemplateDirectory(w http.ResponseWriter, r *http.Request){
 	t := template.Must(template.ParseGlob("./templates/*.gohtml"))
-	t.ExecuteTemplate(w, "simple.gohtml", "Hello HTML Template")
+	t.ExecuteTemplate(w,simpleHtml, "Hello HTML Template")
 }
 
 //go:embed templates/*.gohtml
@@ -101,6 +103,16 @@ type Hobby struct{
 	Hobbies []string
 }
 
+type Address struct{
+	Street, City string
+}
+
+type People struct{
+	Title string
+	Nama string
+	Alamat Address
+}
+
 func TemplateDataMap(w http.ResponseWriter, r *http.Request){
 	t := template.Must(template.ParseFiles("./templates/layout.gohtml"))
 	t.ExecuteTemplate(w, "layout.gohtml", map[string]interface{}{
@@ -146,10 +158,23 @@ func TemplateActionRange(w http.ResponseWriter, r *http.Request){
 	})
 }
 
+func TemplateActionWith(w http.ResponseWriter, r *http.Request){
+	t := template.Must(template.ParseFiles("./templates/with.gohtml"))
+	t.ExecuteTemplate(w, "with.gohtml", People{
+		Title: "Golang Template With",
+		Nama: "Ichigo",
+		Alamat: Address{
+			Street: "District 38",
+			City: "Rukongai",
+		},
+	})
+}
+
 func TestTemplateData(t *testing.T){
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", TemplateDataStruct)
 	mux.HandleFunc("/range", TemplateActionRange)
+	mux.HandleFunc("/with", TemplateActionWith)
 	mux.HandleFunc("/map", TemplateDataMap)
 	mux.HandleFunc("/action-if", TemplateActionIf)
 	mux.HandleFunc("/action-comparator", TemplateActionComparator)
