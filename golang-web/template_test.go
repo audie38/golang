@@ -85,3 +85,40 @@ func TestTemplateHTML(t *testing.T){
 	body, _ := io.ReadAll(recorder.Result().Body)
 	fmt.Println(string(body))
 }
+
+type Page struct{
+	Title string
+	Content string
+}
+
+func TemplateDataMap(w http.ResponseWriter, r *http.Request){
+	t := template.Must(template.ParseFiles("./templates/layout.gohtml"))
+	t.ExecuteTemplate(w, "layout.gohtml", map[string]interface{}{
+		"Title" : "Golang Template Data",
+		"Content" : "Golang Web Template Data Example",
+	})
+}
+
+func TemplateDataStruct(w http.ResponseWriter, r *http.Request){
+	t := template.Must(template.ParseFiles("./templates/layout.gohtml"))
+	t.ExecuteTemplate(w, "layout.gohtml", Page{
+		Title: "Golang Template Data",
+		Content: "Golang Web Template Data Struct",
+	})
+}
+
+func TestTemplateData(t *testing.T){
+	mux := http.NewServeMux()
+	mux.HandleFunc("/", TemplateDataStruct)
+	mux.HandleFunc("/map", TemplateDataMap)
+
+	server := http.Server{
+		Addr: "localhost:8080",
+		Handler: mux,
+	}
+
+	err := server.ListenAndServe()
+	if err != nil{
+		t.Fatal(err)
+	}
+}
