@@ -3,11 +3,11 @@ package golang_web
 import (
 	"embed"
 	"fmt"
+	"html/template"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
-	"text/template"
 )
 
 //go:embed templates/*.gohtml
@@ -27,7 +27,16 @@ type PageContentData struct{
 func TemplateAutoEscape(w http.ResponseWriter, r *http.Request){
 	data := PageContentData{
 		Title: "Go-Lang Auto Escape",
-		Body: `<div classname="container my-5 text-center"><p>Go-Lang Auto Escape</p></div>`,
+		Body: `<div class="container my-5 text-center"><p>Go-Lang Auto Escape</p></div>`,
+	}
+
+	myTemplates.ExecuteTemplate(w, "post", data)
+}
+
+func TemplateAutoEscapeDisabled(w http.ResponseWriter, r *http.Request){
+	data := PageContentData{
+		Title: "Go-Lang Auto Escape",
+		Body: template.HTML( `<div class="container my-5 text-center"><p>Go-Lang Auto Escape</p></div>`),
 	}
 
 	myTemplates.ExecuteTemplate(w, "post", data)
@@ -57,6 +66,8 @@ func TestRunTemplateCaching(t *testing.T){
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", TemplateCaching)
 	mux.HandleFunc("/escape", TemplateAutoEscape)
+	mux.HandleFunc("/nonescape", TemplateAutoEscapeDisabled)
+
 
 	server := http.Server{
 		Addr: "localhost:8000",
