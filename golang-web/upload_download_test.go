@@ -39,11 +39,24 @@ func Upload(w http.ResponseWriter, r *http.Request){
 	})
 }
 
+func DownloadFile(w http.ResponseWriter, r *http.Request){
+	fileName := r.URL.Query().Get("file")
+	if fileName == ""{
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprint(w, "BAD REQUEST")
+		return 
+	}
+
+	w.Header().Add("Content-Disposition", `attachment; filename="`+fileName+`"`)
+	http.ServeFile(w, r, "./public/asset/" + fileName)
+}
+
 func TestUploadDownloadForm(t *testing.T){
 	mux := http.NewServeMux()
 	mux.HandleFunc("/form", UploadForm)
 	mux.HandleFunc("/upload", Upload)
 	mux.Handle("/static/", http.StripPrefix("/static", http.FileServer(http.Dir("./public/asset"))))
+	mux.HandleFunc("/download", DownloadFile)
 
 	server := http.Server{
 		Addr: "localhost:8080",
