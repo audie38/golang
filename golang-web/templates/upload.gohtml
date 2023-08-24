@@ -1,0 +1,20 @@
+{{define "upload"}}
+{{template "header" .}}
+    <div class="container my-5">
+        <div class="card shadow-sm rounded-3 px-5 py-3">
+            <h1>Upload File</h1>
+            <form action="/upload" method="post" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label class="form-label" for="name">Name</label>
+                    <input class="form-control" id="name" name="name" type="text" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="file">File</label>
+                    <input class="form-control" id="file" type="file" name="file" />
+                </div>
+                <button class="my-3 w-100 btn btn-dark" type="submit">Upload</button>
+            </form>
+        </div>
+    </div>
+{{template "footer"}}
+{{end}}
