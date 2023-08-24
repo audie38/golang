@@ -1,7 +1,6 @@
 package golang_web
 
 import (
-	"embed"
 	_ "embed"
 	"fmt"
 	"html/template"
@@ -38,9 +37,6 @@ func TemplateDirectory(w http.ResponseWriter, r *http.Request){
 	t := template.Must(template.ParseGlob("./templates/*.gohtml"))
 	t.ExecuteTemplate(w,simpleHtml, "Hello HTML Template")
 }
-
-//go:embed templates/*.gohtml
-var templates embed.FS
 
 func TemplateEmbed(w http.ResponseWriter, r *http.Request){
 	t, err := template.ParseFS(templates, "templates/*.gohtml")
