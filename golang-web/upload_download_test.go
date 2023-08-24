@@ -55,16 +55,37 @@ type LogMiddleware struct{
 	Handler http.Handler
 }
 
+type ErrorMiddleware struct{
+	Handler http.Handler
+}
+
 func (middleware *LogMiddleware) ServeHTTP(writer http.ResponseWriter, request *http.Request){
 	fmt.Println("Before execute handler")
 	middleware.Handler.ServeHTTP(writer, request)
 	fmt.Println("After execute handler")
 }
 
+func (middleware *ErrorMiddleware) ServeHTTP(writer http.ResponseWriter, request *http.Request){
+	defer func(){
+		err := recover()
+		fmt.Println("Recover: ", err)
+		if err != nil{
+			writer.WriteHeader(http.StatusInternalServerError)
+			fmt.Fprintf(writer,"Error: %s", err)
+		}
+	}()
+
+	middleware.Handler.ServeHTTP(writer, request)
+}
+
 func TestUploadDownloadForm(t *testing.T){
 	mux := http.NewServeMux()
 	mux.HandleFunc("/",	func(w http.ResponseWriter, r *http.Request){
 		fmt.Fprint(w, "Log Middleware example")
+	})
+	mux.HandleFunc("/panic",	func(w http.ResponseWriter, r *http.Request){
+		fmt.Fprint(w, "Error Middleware example ")
+		panic("Error Middleware")
 	})
 	mux.HandleFunc("/form", UploadForm)
 	mux.HandleFunc("/upload", Upload)
@@ -75,9 +96,13 @@ func TestUploadDownloadForm(t *testing.T){
 		Handler: mux,
 	}
 
+	errorMiddlware := &ErrorMiddleware{
+		Handler: logMiddleware,
+	}
+
 	server := http.Server{
 		Addr: "localhost:8080",
-		Handler: logMiddleware,
+		Handler: errorMiddlware,
 	}
 
 	err := server.ListenAndServe()
