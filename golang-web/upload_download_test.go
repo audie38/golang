@@ -51,21 +51,38 @@ func DownloadFile(w http.ResponseWriter, r *http.Request){
 	http.ServeFile(w, r, "./public/asset/" + fileName)
 }
 
+type LogMiddleware struct{
+	Handler http.Handler
+}
+
+func (middleware *LogMiddleware) ServeHTTP(writer http.ResponseWriter, request *http.Request){
+	fmt.Println("Before execute handler")
+	middleware.Handler.ServeHTTP(writer, request)
+	fmt.Println("After execute handler")
+}
+
 func TestUploadDownloadForm(t *testing.T){
 	mux := http.NewServeMux()
+	mux.HandleFunc("/",	func(w http.ResponseWriter, r *http.Request){
+		fmt.Fprint(w, "Log Middleware example")
+	})
 	mux.HandleFunc("/form", UploadForm)
 	mux.HandleFunc("/upload", Upload)
 	mux.Handle("/static/", http.StripPrefix("/static", http.FileServer(http.Dir("./public/asset"))))
 	mux.HandleFunc("/download", DownloadFile)
 
+	logMiddleware := &LogMiddleware{
+		Handler: mux,
+	}
+
 	server := http.Server{
 		Addr: "localhost:8080",
-		Handler: mux,
+		Handler: logMiddleware,
 	}
 
 	err := server.ListenAndServe()
 	if err != nil{
-		panic(err)
+		t.Fatal(err)
 	}
 }
 
