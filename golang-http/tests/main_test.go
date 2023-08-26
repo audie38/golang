@@ -16,6 +16,30 @@ import (
 //go:embed public
 var public embed.FS
 
+type LogMiddleware struct{
+	Handler http.Handler
+}
+
+type ErrorMiddleware struct{
+	Handler http.Handler
+}
+
+func (middleware *LogMiddleware) ServeHTTP(writer http.ResponseWriter, request *http.Request){
+	fmt.Println("Start Log")
+	middleware.Handler.ServeHTTP(writer, request)
+	fmt.Println("Finish Log")
+}
+
+func (middleware *ErrorMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request){
+	defer func (){
+		message := recover()
+		if message != nil{
+			fmt.Printf("Recovered Error: %s \n", message)
+		}
+	}()
+	middleware.Handler.ServeHTTP(w, r)
+}
+
 func TestHttpRouter(t *testing.T){
 	router := httprouter.New()
 	router.GET("/", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params){
@@ -74,5 +98,22 @@ func TestServeFile(t *testing.T){
 	response := recorder.Result()
 	body, _ := io.ReadAll(response.Body)
 	assert.Equal(t, "Hello Text Embed", string(body))
+}
 
+func TestHttpRouterAll(t *testing.T){
+	router := httprouter.New()
+	router.GET("/", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params){
+		fmt.Fprint(w, "Middleware")
+	})
+	
+	logMD := LogMiddleware{router}
+	errMD := ErrorMiddleware{&logMD}
+
+	request := httptest.NewRequest(http.MethodGet, "http://localhost:8000/", nil)
+	recorder := httptest.NewRecorder()
+
+	errMD.ServeHTTP(recorder, request)
+	response := recorder.Result()
+	body, _ := io.ReadAll(response.Body)
+	assert.Equal(t, "Middleware", string(body))
 }

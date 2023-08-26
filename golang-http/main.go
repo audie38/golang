@@ -16,6 +16,30 @@ var public embed.FS
 //go:embed public/404.html
 var notFound string
 
+type LogMiddleware struct{
+	Handler http.Handler
+}
+
+type ErrorMiddleware struct{
+	Handler http.Handler
+}
+
+func (middleware *LogMiddleware) ServeHTTP(writer http.ResponseWriter, request *http.Request){
+	fmt.Println("Start Log")
+	middleware.Handler.ServeHTTP(writer, request)
+	fmt.Println("Finish Log")
+}
+
+func (middleware *ErrorMiddleware) ServeHTTP(writer http.ResponseWriter, request *http.Request){
+	defer func (){
+		message := recover()
+		if message != nil{
+			fmt.Printf("Recovered Error: %s \n", message)
+		}
+	}()
+	middleware.Handler.ServeHTTP(writer, request)
+}
+
 func main() {
 	router := httprouter.New()
 	directory, _ := fs.Sub(public, "public")
@@ -54,9 +78,14 @@ func main() {
 	router.POST("/testing", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params){
 		fmt.Fprint(w, "Post Method")
 	})
+
+
+	logMD := &LogMiddleware{router}
+	errMD := &ErrorMiddleware{logMD}
+
 	server := http.Server{
 		Addr: BASE_URL,
-		Handler: router,
+		Handler: errMD,
 	}
 
 	err:= server.ListenAndServe()
