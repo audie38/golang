@@ -13,6 +13,8 @@ const BASE_URL="localhost:8000"
 
 //go:embed public
 var public embed.FS
+//go:embed public/404.html
+var notFound string
 
 func main() {
 	router := httprouter.New()
@@ -20,6 +22,9 @@ func main() {
 	router.PanicHandler = func(w http.ResponseWriter, r *http.Request, i interface{}){
 		fmt.Fprintf(w, "Panic %s", i)
 	}
+	router.NotFound = http.HandlerFunc(func (w http.ResponseWriter, r *http.Request){
+		fmt.Fprint(w, notFound)
+	})
 
 	router.ServeFiles("/files/*filepath", http.FS(directory))
 
