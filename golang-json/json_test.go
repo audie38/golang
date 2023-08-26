@@ -3,6 +3,7 @@ package golang_json
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 	"testing"
 )
 
@@ -113,4 +114,42 @@ func TestEncodeMap(t *testing.T){
 
 	bytes, _ := json.Marshal(product)
 	fmt.Println(string(bytes))
+}
+
+func TestStreamDecoder(t *testing.T){
+	reader, _ := os.Open("sample.json")
+	decoder := json.NewDecoder(reader)
+
+	customer := &Customer{}
+	decoder.Decode(customer)
+	fmt.Println(customer)
+}
+
+func TestStreamEncoder(t *testing.T){
+	writer, _:= os.Create("sample_output.json")
+	encoder := json.NewEncoder(writer)
+
+	customer := Customer{
+		FirstName: "Yamamoto",
+		MiddleName: "Shigekuni",
+		LastName: "Genryusai",
+		Age: 1000,
+		IsHeadCaptain: true,
+		Hobbies: []string{"Lead", "Train", "Manage"},
+		Addreses: []Address{
+			{
+				Street: "1st Division Barrack",
+				Country: "Soul Society",
+				PostalCode: "00001",
+			},
+			{
+				Street: "Rukongai District 38",
+				Country: "Soul Society",
+				PostalCode: "00038",
+			},
+		},
+	}
+
+	_ = encoder.Encode(customer)
+	fmt.Println(customer)
 }
