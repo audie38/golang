@@ -40,3 +40,18 @@ func TestHttpRouterParams(t *testing.T){
 	bytes, _ := io.ReadAll(response.Body)
 	assert.Equal(t, "Product 1", string(bytes), "Product 1")
 }
+
+func TestHttpRouterCatchAllParams(t *testing.T){
+	router := httprouter.New()
+	router.GET("/image/*image", func(w http.ResponseWriter, r *http.Request, params httprouter.Params){
+		fmt.Fprintf(w, params.ByName("image"))
+	})
+
+	request := httptest.NewRequest(http.MethodGet, "http://localhost:8000/image/small/test.png", nil)
+	recorder := httptest.NewRecorder()
+
+	router.ServeHTTP(recorder, request)
+	response := recorder.Result()
+	bytes, _ := io.ReadAll(response.Body)
+	assert.Equal(t, "/small/test.png", string(bytes), "Product 1")
+}
