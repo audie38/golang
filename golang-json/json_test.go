@@ -12,6 +12,7 @@ type Customer struct{
 	LastName string
 	Age int
 	IsHeadCaptain bool
+	Hobbies []string
 }
 
 func logJson(data interface{}) {
@@ -33,14 +34,18 @@ func TestEncode(t *testing.T){
 		LastName: "Genryusai",
 		Age: 1000,
 		IsHeadCaptain: true,
+		Hobbies: []string{"Lead", "Train", "Manage"},
 	}
 	logJson(customer)
 }
 
 func TestDecode(t *testing.T){
-	jsonRequest := `{"FirstName": "Ichigo", "MiddleName": "Kurosaki", "LastName" : "Shiba", "Age": 20, "IsHeadCaptain" : false}`
+	jsonRequest := `{"FirstName":"Yamamoto","MiddleName":"Shigekuni","LastName":"Genryusai","Age":1000,"IsHeadCaptain":true,"Hobbies":["Lead","Train","Manage"]}`
 	jsonBytes := []byte(jsonRequest)
 	customer := &Customer{}
-	json.Unmarshal(jsonBytes, customer)
+	err := json.Unmarshal(jsonBytes, customer)
+	if err != nil{
+		t.Fatal(err)
+	}
 	fmt.Println(customer)
 }
