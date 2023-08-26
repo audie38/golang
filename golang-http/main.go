@@ -25,7 +25,9 @@ func main() {
 	router.NotFound = http.HandlerFunc(func (w http.ResponseWriter, r *http.Request){
 		fmt.Fprint(w, notFound)
 	})
-
+	router.MethodNotAllowed = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request){
+		fmt.Fprint(w, "Method Not Allowed")
+	})
 	router.ServeFiles("/files/*filepath", http.FS(directory))
 
 	router.GET("/", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params){
@@ -49,6 +51,9 @@ func main() {
 		panic("500 Internal Sever Error")
 	})
 
+	router.POST("/testing", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params){
+		fmt.Fprint(w, "Post Method")
+	})
 	server := http.Server{
 		Addr: BASE_URL,
 		Handler: router,
