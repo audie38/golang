@@ -36,3 +36,11 @@ func TestEncode(t *testing.T){
 	}
 	logJson(customer)
 }
+
+func TestDecode(t *testing.T){
+	jsonRequest := `{"FirstName": "Ichigo", "MiddleName": "Kurosaki", "LastName" : "Shiba", "Age": 20, "IsHeadCaptain" : false}`
+	jsonBytes := []byte(jsonRequest)
+	customer := &Customer{}
+	json.Unmarshal(jsonBytes, customer)
+	fmt.Println(customer)
+}
