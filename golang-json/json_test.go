@@ -6,6 +6,10 @@ import (
 	"testing"
 )
 
+type Address struct{
+	Street, Country, PostalCode string
+}
+
 type Customer struct{
 	FirstName string
 	MiddleName string
@@ -13,6 +17,7 @@ type Customer struct{
 	Age int
 	IsHeadCaptain bool
 	Hobbies []string
+	Addreses []Address
 }
 
 func logJson(data interface{}) {
@@ -35,12 +40,24 @@ func TestEncode(t *testing.T){
 		Age: 1000,
 		IsHeadCaptain: true,
 		Hobbies: []string{"Lead", "Train", "Manage"},
+		Addreses: []Address{
+			{
+				Street: "1st Division Barrack",
+				Country: "Soul Society",
+				PostalCode: "00001",
+			},
+			{
+				Street: "Rukongai District 38",
+				Country: "Soul Society",
+				PostalCode: "00038",
+			},
+		},
 	}
 	logJson(customer)
 }
 
 func TestDecode(t *testing.T){
-	jsonRequest := `{"FirstName":"Yamamoto","MiddleName":"Shigekuni","LastName":"Genryusai","Age":1000,"IsHeadCaptain":true,"Hobbies":["Lead","Train","Manage"]}`
+	jsonRequest := `{"FirstName":"Yamamoto","MiddleName":"Shigekuni","LastName":"Genryusai","Age":1000,"IsHeadCaptain":true,"Hobbies":["Lead","Train","Manage"],"Addreses":[{"Street":"1st Division Barrack","Country":"Soul Society","PostalCode":"00001"},{"Street":"Rukongai District 38","Country":"Soul Society","PostalCode":"00038"}]}`
 	jsonBytes := []byte(jsonRequest)
 	customer := &Customer{}
 	err := json.Unmarshal(jsonBytes, customer)
