@@ -17,6 +17,10 @@ var public embed.FS
 func main() {
 	router := httprouter.New()
 	directory, _ := fs.Sub(public, "public")
+	router.PanicHandler = func(w http.ResponseWriter, r *http.Request, i interface{}){
+		fmt.Fprintf(w, "Panic %s", i)
+	}
+
 	router.ServeFiles("/files/*filepath", http.FS(directory))
 
 	router.GET("/", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params){
@@ -35,6 +39,9 @@ func main() {
 	})
 	router.GET("/image/*image", func(w http.ResponseWriter, r *http.Request, params httprouter.Params){
 		fmt.Fprintf(w, "Image: %s", params.ByName("image"))
+	})
+	router.GET("/panic", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params){
+		panic("500 Internal Sever Error")
 	})
 
 	server := http.Server{
