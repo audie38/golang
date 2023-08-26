@@ -93,3 +93,24 @@ func TestDecodeTag(t *testing.T){
 	}
 	fmt.Println(product)
 }
+
+func TestDecodeMap(t *testing.T){
+	jsonReq := `{"id": "12345", "name": "dummy", "price" : 12000000}`
+	jsonBytes := []byte(jsonReq)
+
+	var result map[string]interface{}
+	_ = json.Unmarshal(jsonBytes, &result)
+
+	fmt.Println(result)
+}
+
+func TestEncodeMap(t *testing.T){
+	product := map[string]interface{}{
+		"id": "P001",
+		"name" : "Dummy Product 1",
+		"price": 10000,
+	}
+
+	bytes, _ := json.Marshal(product)
+	fmt.Println(string(bytes))
+}
