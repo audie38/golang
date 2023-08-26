@@ -1,7 +1,9 @@
 package main
 
 import (
+	"embed"
 	"fmt"
+	"io/fs"
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
@@ -9,8 +11,14 @@ import (
 
 const BASE_URL="localhost:8000"
 
+//go:embed public
+var public embed.FS
+
 func main() {
 	router := httprouter.New()
+	directory, _ := fs.Sub(public, "public")
+	router.ServeFiles("/files/*filepath", http.FS(directory))
+
 	router.GET("/", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params){
 		queryParams := r.URL.Query().Get("name")
 		if queryParams != ""{

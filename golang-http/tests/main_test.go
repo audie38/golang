@@ -1,8 +1,10 @@
 package tests
 
 import (
+	"embed"
 	"fmt"
 	"io"
+	"io/fs"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -10,6 +12,9 @@ import (
 	"github.com/julienschmidt/httprouter"
 	"github.com/stretchr/testify/assert"
 )
+
+//go:embed public
+var public embed.FS
 
 func TestHttpRouter(t *testing.T){
 	router := httprouter.New()
@@ -53,5 +58,21 @@ func TestHttpRouterCatchAllParams(t *testing.T){
 	router.ServeHTTP(recorder, request)
 	response := recorder.Result()
 	bytes, _ := io.ReadAll(response.Body)
-	assert.Equal(t, "/small/test.png", string(bytes), "Product 1")
+	assert.Equal(t, "/small/test.png", string(bytes), "/small/test.png")
+}
+
+func TestServeFile(t *testing.T){
+	router := httprouter.New()
+	directory, _ := fs.Sub(public, "public")
+	router.ServeFiles("/files/*filepath", http.FS(directory))
+
+	request := httptest.NewRequest(http.MethodGet, "http://localhost:8000/files/test.txt", nil)
+	recorder := httptest.NewRecorder()
+
+	router.ServeHTTP(recorder, request)
+
+	response := recorder.Result()
+	body, _ := io.ReadAll(response.Body)
+	assert.Equal(t, "Hello Text Embed", string(body))
+
 }
