@@ -1,0 +1,101 @@
+{
+  "openapi": "3.0.2",
+  "info": {
+    "title": "Category RESTFUL API",
+    "description": "API Spec fro Category RESTFUL API",
+    "version": "1.0"
+  },
+  "servers": [{ "url": "http://localhost:3000/api" }],
+  "paths": {
+    "/category": {
+      "get": {
+        "description": "List All Categories",
+        "summary": "List All Categories",
+        "tags": ["Category API"],
+        "responses": {
+          "200": {
+            "description": "Success Get All Categories",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "number"
+                    },
+                    "status": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Category"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Category API"],
+        "description": "Create New Category",
+        "summary": "Create New Category",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success Create Category",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "number"
+                    },
+                    "status": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Category"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Category": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
