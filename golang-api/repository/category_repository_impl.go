@@ -27,7 +27,7 @@ func (c *CategoryRepositoryImpl) Create(ctx context.Context, tx *sql.Tx, categor
 }
 
 func (c *CategoryRepositoryImpl) Update(ctx context.Context, tx *sql.Tx, category domain.Category) domain.Category {
-	query := "UPDATE CATEGORY(NAME) SET NAME = ? WHERE CATEGORY_ID = ?"
+	query := "UPDATE CATEGORY SET NAME = ? WHERE CATEGORY_ID = ?"
 	_, err := tx.ExecContext(ctx, query, category.Name, category.CategoryId)
 	helper.PanicIfError(err)
 
@@ -44,9 +44,9 @@ func (c *CategoryRepositoryImpl) FindById(ctx context.Context, tx *sql.Tx, categ
 	query := "SELECT CATEGORY_ID, NAME FROM CATEGORY WHERE CATEGORY_ID = ?"
 	rows, err := tx.QueryContext(ctx, query, categoryId)
 	helper.PanicIfError(err)
+	defer rows.Close()
 
 	category := domain.Category{}
-
 	if rows.Next(){
 		err := rows.Scan(&category.CategoryId, &category.Name)
 		helper.PanicIfError(err)
@@ -63,6 +63,7 @@ func (c *CategoryRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx) []doma
 	helper.PanicIfError(err)
 
 	var categories []domain.Category
+	defer rows.Close()
 	for rows.Next(){
 		category := domain.Category{}
 		err := rows.Scan(&category.CategoryId, &category.Name)
