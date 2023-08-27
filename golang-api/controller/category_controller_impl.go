@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"encoding/json"
 	"golang_api/helper"
 	"golang_api/model/web"
 	"golang_api/service"
@@ -16,10 +15,8 @@ type CategoryControllerImpl struct {
 }
 
 func (controller *CategoryControllerImpl) Create(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
-	decoder := json.NewDecoder(r.Body)
 	categoryCreateRequest := web.CategoryCreateRequest{}
-	err := decoder.Decode(&categoryCreateRequest)
-	helper.PanicIfError(err)
+	helper.ReadFromRequestBody(r, &categoryCreateRequest)
 
 	categoryResponse := controller.CategoryService.Create(r.Context(), categoryCreateRequest)
 	webResponse := web.WebResponse{
@@ -28,18 +25,12 @@ func (controller *CategoryControllerImpl) Create(w http.ResponseWriter, r *http.
 		Data: categoryResponse,
 	}
 
-	w.Header().Add("Content-Type", "application/json")
-	encoder := json.NewEncoder(w)
-	err = encoder.Encode(webResponse)
-	helper.PanicIfError(err)
-	
+	helper.WriteToResponseBody(w, webResponse)	
 }
 
 func (controller *CategoryControllerImpl) Update(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
-	decoder := json.NewDecoder(r.Body)
 	categoryUpdateRequest := web.CategoryUpdateRequest{}
-	err := decoder.Decode(&categoryUpdateRequest)
-	helper.PanicIfError(err)
+	helper.ReadFromRequestBody(r, &categoryUpdateRequest)
 
 	categoryId := params.ByName("categoryId")
 	id, err := strconv.Atoi(categoryId)
@@ -54,10 +45,7 @@ func (controller *CategoryControllerImpl) Update(w http.ResponseWriter, r *http.
 		Data: categoryResponse,
 	}
 
-	w.Header().Add("Content-Type", "application/json")
-	encoder := json.NewEncoder(w)
-	err = encoder.Encode(webResponse)
-	helper.PanicIfError(err)
+	helper.WriteToResponseBody(w, webResponse)
 }
 
 func (controller *CategoryControllerImpl) Delete(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
@@ -71,10 +59,7 @@ func (controller *CategoryControllerImpl) Delete(w http.ResponseWriter, r *http.
 		Status: "OK",
 	}
 
-	w.Header().Add("Content-Type", "application/json")
-	encoder := json.NewEncoder(w)
-	err = encoder.Encode(webResponse)
-	helper.PanicIfError(err)
+	helper.WriteToResponseBody(w, webResponse)
 }
 
 func (controller *CategoryControllerImpl) FindById(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
@@ -89,10 +74,7 @@ func (controller *CategoryControllerImpl) FindById(w http.ResponseWriter, r *htt
 		Data: categoryResponse,
 	}
 
-	w.Header().Add("Content-Type", "application/json")
-	encoder := json.NewEncoder(w)
-	err = encoder.Encode(webResponse)
-	helper.PanicIfError(err)
+	helper.WriteToResponseBody(w, webResponse)
 }
 
 func (controller *CategoryControllerImpl) FindAll(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
@@ -103,8 +85,5 @@ func (controller *CategoryControllerImpl) FindAll(w http.ResponseWriter, r *http
 		Data: categoryResponses,
 	}
 
-	w.Header().Add("Content-Type", "application/json")
-	encoder := json.NewEncoder(w)
-	err := encoder.Encode(webResponse)
-	helper.PanicIfError(err)
+	helper.WriteToResponseBody(w, webResponse)
 }
