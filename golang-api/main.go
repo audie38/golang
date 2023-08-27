@@ -3,6 +3,7 @@ package main
 import (
 	"golang_api/config"
 	"golang_api/controller"
+	"golang_api/exception"
 	"golang_api/helper"
 	"golang_api/repository"
 	"golang_api/service"
@@ -29,6 +30,8 @@ func main() {
 	router.GET(CATEGORY_API_PARAMS_ID, categoryController.FindById)
 	router.PUT(CATEGORY_API_PARAMS_ID, categoryController.Update)
 	router.DELETE(CATEGORY_API_PARAMS_ID, categoryController.Delete)
+
+	router.PanicHandler = exception.ErrorHandler
 
 	server := http.Server{
 		Addr: "localhost:3000",
