@@ -18,11 +18,11 @@ func (middleware AuthMiddleware) ServeHTTP(writer http.ResponseWriter, request *
 	if "SECRET" == request.Header.Get("X-API-KEY"){
 		middleware.Handler.ServeHTTP(writer, request)
 	}else{
-		writer.Header().Add("Content-Type", "application/json")
+		writer.Header().Add(helper.CONTENT_TYPE, helper.APP_JSON)
 		writer.WriteHeader(http.StatusUnauthorized)
 		webResponse := web.WebResponse{
 			Code: http.StatusUnauthorized,
-			Status: "UnAuthorized",
+			Status: helper.UNAUTHORIZED_ERROR,
 		}
 	
 		helper.WriteToResponseBody(writer, webResponse)

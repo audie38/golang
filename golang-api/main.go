@@ -3,7 +3,6 @@ package main
 import (
 	"golang_api/config"
 	"golang_api/controller"
-	"golang_api/exception"
 	"golang_api/helper"
 	"golang_api/middleware"
 	"golang_api/repository"
@@ -11,11 +10,7 @@ import (
 	"net/http"
 
 	"github.com/go-playground/validator"
-	"github.com/julienschmidt/httprouter"
 )
-
-const CATEGORY_API_BASE_URL string ="/api/category"
-const CATEGORY_API_PARAMS_ID string = "/api/category/:categoryId"
 
 func main() {
 	
@@ -24,15 +19,7 @@ func main() {
 	categoryRepository := repository.NewCategoryRepository()
 	categoryService := service.NewCategoryService(categoryRepository, db, validate)
 	categoryController := controller.NewCategoryController(categoryService)
-	router := httprouter.New()
-
-	router.POST(CATEGORY_API_BASE_URL, categoryController.Create)
-	router.GET(CATEGORY_API_BASE_URL, categoryController.FindAll)
-	router.GET(CATEGORY_API_PARAMS_ID, categoryController.FindById)
-	router.PUT(CATEGORY_API_PARAMS_ID, categoryController.Update)
-	router.DELETE(CATEGORY_API_PARAMS_ID, categoryController.Delete)
-
-	router.PanicHandler = exception.ErrorHandler
+	router := config.NewRouter(categoryController)
 
 	server := http.Server{
 		Addr: "localhost:3000",
