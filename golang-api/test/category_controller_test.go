@@ -65,8 +65,8 @@ func TestCreateCategorySuccess(t *testing.T){
 	body, _ := io.ReadAll(response.Body)
 	json.Unmarshal(body, &responseBody)
 	
-	assert.Equal(t, 200, response.StatusCode, "HTTP Status Code Must be 200")
-	assert.Equal(t, helper.RESPONSE_OK, responseBody["status"], "JSON Response Status Must be OK")
+	assert.Equal(t, 200, response.StatusCode)
+	assert.Equal(t, helper.RESPONSE_OK, responseBody["status"])
 	assert.Equal(t, "Gadget", responseBody["data"].(map[string]interface{})["name"], "JSON Response Data Must be Gadget")
 }
 
@@ -116,8 +116,8 @@ func TestUpdateCategorySuccess(t *testing.T){
 	body, _ := io.ReadAll(response.Body)
 	json.Unmarshal(body, &responseBody)
 	
-	assert.Equal(t, 200, response.StatusCode, "HTTP Status Code Must be 200")
-	assert.Equal(t, helper.RESPONSE_OK, responseBody["status"], "JSON Response Status Must be OK")
+	assert.Equal(t, 200, response.StatusCode)
+	assert.Equal(t, helper.RESPONSE_OK, responseBody["status"])
 	assert.Equal(t, category.CategoryId, int64(responseBody["data"].(map[string]interface{})["id"].(float64)), "Updated Category Id Must be : " + strconv.Itoa(int(category.CategoryId)) )
 	assert.Equal(t, "Fashion", responseBody["data"].(map[string]interface{})["name"], "JSON Response Data Must be Fashion")
 }
@@ -170,7 +170,7 @@ func TestUpdateCategoryNotFoundFailed(t *testing.T){
 	json.Unmarshal(body, &responseBody)
 	
 	assert.Equal(t, 404, response.StatusCode, "HTTP Status Code Must be 404")
-	assert.Equal(t, helper.NOT_FOUND_ERROR, responseBody["status"], "JSON Response Status Must be NOT FOUND")
+	assert.Equal(t, helper.NOT_FOUND_ERROR, responseBody["status"])
 }
 
 func TestGetCategorySuccess(t *testing.T){
@@ -198,8 +198,8 @@ func TestGetCategorySuccess(t *testing.T){
 	body, _ := io.ReadAll(response.Body)
 	json.Unmarshal(body, &responseBody)
 	
-	assert.Equal(t, 200, response.StatusCode, "HTTP Status Code Must be 200")
-	assert.Equal(t, helper.RESPONSE_OK, responseBody["status"], "JSON Response Status Must be OK")
+	assert.Equal(t, 200, response.StatusCode)
+	assert.Equal(t, helper.RESPONSE_OK, responseBody["status"])
 	assert.Equal(t, category.CategoryId, int64(responseBody["data"].(map[string]interface{})["id"].(float64)), "Category Id Must be : " + strconv.Itoa(int(category.CategoryId)) )
 	assert.Equal(t, "Gadget", responseBody["data"].(map[string]interface{})["name"], "JSON Response Data Must be Gadget")
 }
@@ -220,13 +220,43 @@ func TestGetCategoryFailed(t *testing.T){
 	body, _ := io.ReadAll(response.Body)
 	json.Unmarshal(body, &responseBody)
 	
-	assert.Equal(t, 404, response.StatusCode, "HTTP Status Code Must be 200")
-	assert.Equal(t, helper.NOT_FOUND_ERROR, responseBody["status"], "JSON Response Status Must be NOT FOUND")
+	assert.Equal(t, 404, response.StatusCode)
+	assert.Equal(t, helper.NOT_FOUND_ERROR, responseBody["status"])
 }
 
-func TestGetListCategorySuccess(t *testing.T){}
+func TestGetListCategorySuccess(t *testing.T){
+	db := setupTestDB()
+	trucateCategory(db)
 
-func TestGetListCategoryFailed(t *testing.T){}
+	tx, _ := db.Begin()
+	categoryRepo := repository.NewCategoryRepository()
+	category := categoryRepo.Create(context.Background(), tx, domain.Category{
+		Name: "Gadget",
+	})
+
+	tx.Commit()
+
+	router := setupRouter(db)
+	url := helper.CATEGORY_API_BASE_URL
+	request := httptest.NewRequest(http.MethodGet, url, nil)
+	request.Header.Add(helper.CONTENT_TYPE, helper.APP_JSON)
+	request.Header.Add(helper.API_KEY, helper.API_KEY_VAL)
+	recorder := httptest.NewRecorder()
+
+	router.ServeHTTP(recorder, request)
+	response := recorder.Result()
+	var responseBody map[string]interface{}
+	body, _ := io.ReadAll(response.Body)
+	json.Unmarshal(body, &responseBody)
+	
+	var listCategories = responseBody["data"].([]interface{})
+	var categories = listCategories[0].(map[string]interface{})
+
+	assert.Equal(t, 200, response.StatusCode)
+	assert.Equal(t, helper.RESPONSE_OK, responseBody["status"])
+	assert.Equal(t, category.CategoryId, int64(categories["id"].(float64)))
+	assert.Equal(t, category.Name, categories["name"])
+}
 
 func TestDeleteCategorySuccess(t *testing.T){
 	db := setupTestDB()
@@ -254,7 +284,7 @@ func TestDeleteCategorySuccess(t *testing.T){
 	json.Unmarshal(body, &responseBody)
 	
 	assert.Equal(t, 200, response.StatusCode, "HTTP Status Code Must be 200")
-	assert.Equal(t, helper.RESPONSE_OK, responseBody["status"], "JSON Response Status Must be OK")
+	assert.Equal(t, helper.RESPONSE_OK, responseBody["status"])
 }
 
 func TestDeleteCategoryFailed(t *testing.T){
@@ -275,7 +305,25 @@ func TestDeleteCategoryFailed(t *testing.T){
 	json.Unmarshal(body, &responseBody)
 	
 	assert.Equal(t, 404, response.StatusCode, "HTTP Status Code Must be 404")
-	assert.Equal(t, helper.NOT_FOUND_ERROR, responseBody["status"], "JSON Response Status Must be NOT FOUND")
+	assert.Equal(t, helper.NOT_FOUND_ERROR, responseBody["status"])
 }
 
-func TestUnauthorized(t *testing.T){}
+func TestUnauthorized(t *testing.T){
+	db := setupTestDB()
+	trucateCategory(db)
+	router := setupRouter(db)
+	requestBody := strings.NewReader(`{"name":"Gadget"}`)
+	request := httptest.NewRequest(http.MethodPost, helper.CATEGORY_API_BASE_URL, requestBody)
+	request.Header.Add(helper.CONTENT_TYPE, helper.APP_JSON)
+	request.Header.Add(helper.API_KEY, "UNAUTH")
+	recorder := httptest.NewRecorder()
+
+	router.ServeHTTP(recorder, request)
+	response := recorder.Result()
+	var responseBody map[string]interface{}
+	body, _ := io.ReadAll(response.Body)
+	json.Unmarshal(body, &responseBody)
+	
+	assert.Equal(t, 401, response.StatusCode, "HTTP Status Code Must be UNAUTHORIZED")
+	assert.Equal(t, helper.UNAUTHORIZED_ERROR, responseBody["status"], "JSON Response Status Must be UNAUTHORIZED")
+}
