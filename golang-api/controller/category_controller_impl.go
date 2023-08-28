@@ -27,7 +27,7 @@ func (controller *CategoryControllerImpl) Create(w http.ResponseWriter, r *http.
 	categoryResponse := controller.CategoryService.Create(r.Context(), categoryCreateRequest)
 	webResponse := web.WebResponse{
 		Code: 200,
-		Status: "OK",
+		Status: helper.RESPONSE_OK,
 		Data: categoryResponse,
 	}
 
@@ -47,7 +47,7 @@ func (controller *CategoryControllerImpl) Update(w http.ResponseWriter, r *http.
 	categoryResponse := controller.CategoryService.Update(r.Context(), categoryUpdateRequest)
 	webResponse := web.WebResponse{
 		Code: 200,
-		Status: "OK",
+		Status: helper.RESPONSE_OK,
 		Data: categoryResponse,
 	}
 
@@ -62,7 +62,7 @@ func (controller *CategoryControllerImpl) Delete(w http.ResponseWriter, r *http.
 	controller.CategoryService.Delete(r.Context(), int64(id))
 	webResponse := web.WebResponse{
 		Code: 200,
-		Status: "OK",
+		Status: helper.RESPONSE_OK,
 	}
 
 	helper.WriteToResponseBody(w, webResponse)
@@ -76,7 +76,7 @@ func (controller *CategoryControllerImpl) FindById(w http.ResponseWriter, r *htt
 	categoryResponse := controller.CategoryService.FindById(r.Context(), int64(id))
 	webResponse := web.WebResponse{
 		Code: 200,
-		Status: "OK",
+		Status: helper.RESPONSE_OK,
 		Data: categoryResponse,
 	}
 
@@ -87,7 +87,7 @@ func (controller *CategoryControllerImpl) FindAll(w http.ResponseWriter, r *http
 	categoryResponses := controller.CategoryService.FindAll(r.Context())
 	webResponse := web.WebResponse{
 		Code: 200,
-		Status: "OK",
+		Status: helper.RESPONSE_OK,
 		Data: categoryResponses,
 	}
 

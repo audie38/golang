@@ -8,9 +8,6 @@ import (
 	"github.com/go-playground/validator"
 )
 
-const CONTENT_TYPE string = "Content-Type"
-const APP_JSON string = "application/json"
-
 func ErrorHandler(w http.ResponseWriter, r *http.Request, err interface{}){
 	if notFoundError(w, r, err){
 		return 
@@ -24,11 +21,11 @@ func ErrorHandler(w http.ResponseWriter, r *http.Request, err interface{}){
 }
 
 func internalServerError(w http.ResponseWriter, r *http.Request, err interface{}){
-	w.Header().Add(CONTENT_TYPE, APP_JSON)
+	w.Header().Add(helper.CONTENT_TYPE, helper.APP_JSON)
 	w.WriteHeader(http.StatusInternalServerError)
 	webResponse := web.WebResponse{
 		Code: http.StatusInternalServerError,
-		Status: "Internal Server Error",
+		Status: helper.INTERNAL_SERVER_ERROR,
 		Data: err,
 	}
 
@@ -38,11 +35,11 @@ func internalServerError(w http.ResponseWriter, r *http.Request, err interface{}
 func notFoundError(w http.ResponseWriter, r *http.Request, err interface{}) bool{
 	exception, ok := err.(NotFoundError)
 	if ok{
-		w.Header().Add(CONTENT_TYPE, APP_JSON)
+		w.Header().Add(helper.CONTENT_TYPE, helper.APP_JSON)
 		w.WriteHeader(http.StatusNotFound)
 		webResponse := web.WebResponse{
 			Code: http.StatusNotFound,
-			Status: "Not Found",
+			Status: helper.NOT_FOUND_ERROR,
 			Data: exception.Error,
 		}
 	
@@ -56,11 +53,11 @@ func notFoundError(w http.ResponseWriter, r *http.Request, err interface{}) bool
 func validationErrors(w http.ResponseWriter, r *http.Request, err interface{}) bool{
 	exception, ok := err.(validator.ValidationErrors)
 	if ok{
-		w.Header().Add(CONTENT_TYPE, APP_JSON)
+		w.Header().Add(helper.CONTENT_TYPE, helper.APP_JSON)
 		w.WriteHeader(http.StatusBadRequest)
 		webResponse := web.WebResponse{
 			Code: http.StatusBadRequest,
-			Status: "Bad Request",
+			Status: helper.BAD_REQUEST_ERROR,
 			Data: exception.Error(),
 		}
 	
