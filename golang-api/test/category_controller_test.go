@@ -1,17 +1,20 @@
 package test
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"golang_api/config"
 	"golang_api/controller"
 	"golang_api/helper"
 	"golang_api/middleware"
+	"golang_api/model/domain"
 	"golang_api/repository"
 	"golang_api/service"
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -87,9 +90,88 @@ func TestCreateCategoryFailed(t *testing.T){
 	assert.Equal(t, helper.BAD_REQUEST_ERROR, responseBody["status"], "JSON Response Status Must be BAD REQUEST")
 }
 
-func TestUpdateCategorySuccess(t *testing.T){}
+func TestUpdateCategorySuccess(t *testing.T){
+	db := setupTestDB()
+	trucateCategory(db)
 
-func TestUpdateCategoryFailed(t *testing.T){}
+	tx, _ := db.Begin()
+	categoryRepo := repository.NewCategoryRepository()
+	category := categoryRepo.Create(context.Background(), tx, domain.Category{
+		Name: "Gadget",
+	})
+
+	tx.Commit()
+
+	router := setupRouter(db)
+	requestBody := strings.NewReader(`{"name":"Fashion"}`)
+	url := helper.CATEGORY_API_BASE_URL + "/" + strconv.Itoa(int(category.CategoryId))
+	request := httptest.NewRequest(http.MethodPut, url, requestBody)
+	request.Header.Add(helper.CONTENT_TYPE, helper.APP_JSON)
+	request.Header.Add(helper.API_KEY, helper.API_KEY_VAL)
+	recorder := httptest.NewRecorder()
+
+	router.ServeHTTP(recorder, request)
+	response := recorder.Result()
+	var responseBody map[string]interface{}
+	body, _ := io.ReadAll(response.Body)
+	json.Unmarshal(body, &responseBody)
+	
+	assert.Equal(t, 200, response.StatusCode, "HTTP Status Code Must be 200")
+	assert.Equal(t, helper.RESPONSE_OK, responseBody["status"], "JSON Response Status Must be OK")
+	assert.Equal(t, category.CategoryId, int64(responseBody["data"].(map[string]interface{})["id"].(float64)), "Updated Category Id Must be : " + strconv.Itoa(int(category.CategoryId)) )
+	assert.Equal(t, "Fashion", responseBody["data"].(map[string]interface{})["name"], "JSON Response Data Must be Fashion")
+}
+
+func TestUpdateCategoryFailed(t *testing.T){
+	db := setupTestDB()
+	trucateCategory(db)
+
+	tx, _ := db.Begin()
+	categoryRepo := repository.NewCategoryRepository()
+	category := categoryRepo.Create(context.Background(), tx, domain.Category{
+		Name: "Gadget",
+	})
+
+	tx.Commit()
+
+	router := setupRouter(db)
+	requestBody := strings.NewReader(`{"name":""}`)
+	url := helper.CATEGORY_API_BASE_URL + "/" + strconv.Itoa(int(category.CategoryId))
+	request := httptest.NewRequest(http.MethodPut, url, requestBody)
+	request.Header.Add(helper.CONTENT_TYPE, helper.APP_JSON)
+	request.Header.Add(helper.API_KEY, helper.API_KEY_VAL)
+	recorder := httptest.NewRecorder()
+
+	router.ServeHTTP(recorder, request)
+	response := recorder.Result()
+	var responseBody map[string]interface{}
+	body, _ := io.ReadAll(response.Body)
+	json.Unmarshal(body, &responseBody)
+	
+	assert.Equal(t, 400, response.StatusCode, "HTTP Status Code Must be 400")
+	assert.Equal(t, helper.BAD_REQUEST_ERROR, responseBody["status"], "JSON Response Status Must be BAD REQUEST")
+}
+
+func TestUpdateCategoryNotFoundFailed(t *testing.T){
+	db := setupTestDB()
+	trucateCategory(db)
+	router := setupRouter(db)
+	requestBody := strings.NewReader(`{"name":"Fashion"}`)
+	url := helper.CATEGORY_API_BASE_URL + "/1"
+	request := httptest.NewRequest(http.MethodPut, url, requestBody)
+	request.Header.Add(helper.CONTENT_TYPE, helper.APP_JSON)
+	request.Header.Add(helper.API_KEY, helper.API_KEY_VAL)
+	recorder := httptest.NewRecorder()
+
+	router.ServeHTTP(recorder, request)
+	response := recorder.Result()
+	var responseBody map[string]interface{}
+	body, _ := io.ReadAll(response.Body)
+	json.Unmarshal(body, &responseBody)
+	
+	assert.Equal(t, 404, response.StatusCode, "HTTP Status Code Must be 404")
+	assert.Equal(t, helper.NOT_FOUND_ERROR, responseBody["status"], "JSON Response Status Must be NOT FOUND")
+}
 
 func TestGetCategorySuccess(t *testing.T){}
 
