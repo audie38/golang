@@ -228,8 +228,54 @@ func TestGetListCategorySuccess(t *testing.T){}
 
 func TestGetListCategoryFailed(t *testing.T){}
 
-func TestDeleteCategorySuccess(t *testing.T){}
+func TestDeleteCategorySuccess(t *testing.T){
+	db := setupTestDB()
+	trucateCategory(db)
 
-func TestDeleteCategoryFailed(t *testing.T){}
+	tx, _ := db.Begin()
+	categoryRepo := repository.NewCategoryRepository()
+	category := categoryRepo.Create(context.Background(), tx, domain.Category{
+		Name: "Gadget",
+	})
+
+	tx.Commit()
+
+	router := setupRouter(db)
+	url := helper.CATEGORY_API_BASE_URL + "/" + strconv.Itoa(int(category.CategoryId))
+	request := httptest.NewRequest(http.MethodDelete, url, nil)
+	request.Header.Add(helper.CONTENT_TYPE, helper.APP_JSON)
+	request.Header.Add(helper.API_KEY, helper.API_KEY_VAL)
+	recorder := httptest.NewRecorder()
+
+	router.ServeHTTP(recorder, request)
+	response := recorder.Result()
+	var responseBody map[string]interface{}
+	body, _ := io.ReadAll(response.Body)
+	json.Unmarshal(body, &responseBody)
+	
+	assert.Equal(t, 200, response.StatusCode, "HTTP Status Code Must be 200")
+	assert.Equal(t, helper.RESPONSE_OK, responseBody["status"], "JSON Response Status Must be OK")
+}
+
+func TestDeleteCategoryFailed(t *testing.T){
+	db := setupTestDB()
+	trucateCategory(db)
+
+	router := setupRouter(db)
+	url := helper.CATEGORY_API_BASE_URL + "/404" 
+	request := httptest.NewRequest(http.MethodDelete, url, nil)
+	request.Header.Add(helper.CONTENT_TYPE, helper.APP_JSON)
+	request.Header.Add(helper.API_KEY, helper.API_KEY_VAL)
+	recorder := httptest.NewRecorder()
+
+	router.ServeHTTP(recorder, request)
+	response := recorder.Result()
+	var responseBody map[string]interface{}
+	body, _ := io.ReadAll(response.Body)
+	json.Unmarshal(body, &responseBody)
+	
+	assert.Equal(t, 404, response.StatusCode, "HTTP Status Code Must be 404")
+	assert.Equal(t, helper.NOT_FOUND_ERROR, responseBody["status"], "JSON Response Status Must be NOT FOUND")
+}
 
 func TestUnauthorized(t *testing.T){}
