@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"golang-gin/models"
+	"golang-gin/utils"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -77,8 +78,14 @@ func (h userHandler)Login(c *gin.Context){
 		return
 	}
 
+	token, err := utils.GenerateToken(int64(existingUser.ID))
+	if err != nil{
+		c.AbortWithError(http.StatusUnauthorized, err)
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
-		"message": "Login Success",
+		"token": token,
 	})
 }
 

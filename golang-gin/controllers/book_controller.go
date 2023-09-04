@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"golang-gin/middlewares"
 	"golang-gin/models"
 	"net/http"
 
@@ -120,6 +121,7 @@ func RegisterRoutes(router *gin.Engine, db *gorm.DB){
 	}
 
 	routes := router.Group("/api/book")
+	routes.Use(middlewares.JwtAuthMiddleware())
 	routes.POST("/", h.AddBook)
 	routes.GET("/", h.GetBook)
 	routes.GET("/:id", h.GetBookById)
