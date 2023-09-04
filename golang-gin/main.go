@@ -27,6 +27,7 @@ func main() {
 	})
 
 	controllers.RegisterRoutes(router, dbHandler)
+	controllers.RegisterUserRoutes(router, dbHandler)
 
 	router.Run(port)
 }
